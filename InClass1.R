@@ -1,4 +1,6 @@
-#### In Class Coding Challenge 1 ####
+#### In Class Coding Challenge 1 #
+
+#### Question 4 ####
 
 # Create a vector named 'z' with the values 1 to 200 
 z <- c(1:200)
@@ -32,8 +34,16 @@ zsquared_180 <- zdf[180, "zsquared"]
 # Annotate your code, commit the changes and push it to your GitHub 
 # I am done - everything works
 
+#### Question 5 ####
 
+# Download the Tips.csv file from Canvas. Use the read.csv() 
+# function to read the data into R so that the missing values are properly coded. 
+# **Note the missing values are reported in the data as a period (i.e., “.”). 
+# How do you know the data were read correctly? 
 
+TipsR <- read.csv("~/Desktop/TipsR.csv")
+str(TipsR)
+TipsR[TipsR == "."] <- NA
 
-
+# The data were read correctly because I crosschecked to the orignal raw data
 
