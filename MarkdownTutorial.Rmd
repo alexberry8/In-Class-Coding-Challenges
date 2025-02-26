@@ -1,0 +1,62 @@
+---
+title: "R Markdown Notes"
+author: "Alex Berry"
+date: "2025-02-26"
+output: 
+  md_document:
+    variant: gfm 
+  html_document:
+    toc: true
+    toc_float: true
+  word_document:
+  pdf_document:
+---
+
+This is an example of R code.
+```{r R Code example}
+# this is R code
+summary(mtcars)
+```
+
+This is how to include figures
+```{r Include figures}
+data("mtcars")
+library(ggplot2)
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_smooth(method = lm, se = FALSE) +
+  geom_point(aes(color = wt)) +
+  xlab("Weight") +
+  ylab("Miles Per Gallon") +
+  scale_color_gradient(low = "dodgerblue", high = "black")
+```
+
+R Markdown formatting options
+
+# First level header
+*this text is italics*
+**this text is italics and bold**
+
+## Links
+[Link to my github](https://github.com/alexberry8/In-Class-Coding-Challenges.git)
+
+## Images
+![Shrek ggplot](insert relative file path image)
+
+## Formatted tables
+```{r}
+library(knitr)
+kable(mtcars, digits = 3, format = "markdown")
+```
+
+## Links to analysis
+
+- [Link to Markdown Tutorial](MarkdownTutorial.md)
+
+```{r}
+## File Tree
+install.packages("fs")
+fs::dir_tree()
+```
+
+# DOI
+[![DOI](https://zenodo.org/badge/928546746.svg)](https://doi.org/10.5281/zenodo.14933489)
