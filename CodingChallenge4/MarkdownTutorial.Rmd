@@ -141,3 +141,5 @@ combinedplot2 <- ggarrange(boxplot1_ttest, boxplot2_ttest, boxplot3_ttest, label
 combinedplot2
 ```
 
+
+[Link to GitHub](https://github.com/alexberry8/In-Class-Coding-Challenges/tree/main?tab=readme-ov-file)
