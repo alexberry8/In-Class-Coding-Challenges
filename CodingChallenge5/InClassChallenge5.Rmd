@@ -1,0 +1,77 @@
+---
+title: "CodingChallenge5"
+author: "Alex Berry"
+date: "2025-03-20"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+# Question 1
+```{r}
+diversity.data <- read.csv("CodingChallenge5/DiversityData.csv", header = TRUE)
+metadata <- read.csv("CodingChallenge5/Metadata.csv", header = TRUE)
+```
+
+# Question 2
+```{r}
+library(tidyverse)
+alpha <- left_join(metadata, diversity.data, by = "Code")
+head(alpha)
+```
+
+# Question 3
+```{r}
+alpha_even <- alpha %>%
+  mutate(Pielou_Evenness = shannon/log(richness))
+head(alpha_even)
+```
+
+# Question 4
+```{r}
+alpha_average <- alpha_even %>%
+  group_by(Crop, Time_Point) %>%
+  summarise(
+    mean_evenness = mean(Pielou_Evenness, na.rm = TRUE),
+    count = n(),
+    sd_evenness = sd(Pielou_Evenness, na.rm = TRUE),
+    se_evenness = sd_evenness / sqrt(count),
+    .groups = "drop"
+  )
+```
+
+# Question 5
+```{r}
+alpha_average2 <- alpha_average %>%
+  select(Time_Point, Crop, mean_evenness) %>%
+  pivot_wider(names_from = Crop, values_from = mean_evenness) %>%
+  mutate(
+    diff_cotton_even = Soil - Cotton,
+    diff_soybean_even = Soil - Soybean
+  )
+head(alpha_average2)
+```
+
+# Question 6
+```{r}
+alpha_plot_data <- alpha_average2 %>%
+  select(Time_Point, diff_soybean_even, diff_cotton_even) %>%
+  pivot_longer(cols = c(diff_soybean_even, diff_cotton_even), names_to = "diff", values_to = "values")
+
+ggplot(alpha_plot_data, aes(x = Time_Point, y = values, color = diff, group = diff)) +
+  geom_line(size = 1) + 
+  geom_point(size = 3) +
+  labs(
+    title = "Changes in Evenness Over Time",
+    x = "Time Point",
+    y = "Difference in Evenness",
+    color = "Crop Comparison"
+  ) +
+  theme_minimal()
+```
+
+# Question 7
+[Link to GitHub](https://github.com/alexberry8/In-Class-Coding-Challenges)
+
+
