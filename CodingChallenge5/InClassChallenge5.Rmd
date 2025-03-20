@@ -3,9 +3,11 @@ title: "CodingChallenge5"
 author: "Alex Berry"
 date: "2025-03-20"
 output:
-  pdf_document: default
+  md_document:
+    variant: gfm
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 # Question 1
