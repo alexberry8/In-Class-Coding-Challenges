@@ -1,0 +1,137 @@
+---
+title: "InClassChallenge6"
+author: "Alex Berry"
+date: "2025-03-27"
+output:
+  html_document:
+    toc: true
+  md_document:
+    variant: gfm
+  word_document:
+    toc: true
+  pdf_document: null
+---
+
+# QUESTION 1
+The main point of writing your own functions is to avoid copy and paste errors when you need to perform the same code on different data. Functions allow you to simplify your code, allowing for better data management and reproducibility. Iterations are also helpful to reduce copy and paste errors when you need to repeat code multiple times, ultimately expediting repetitive work. What both functions and iterations accomplish is the reduction of copy and paste errors, and allows for consistent, and reusable code. 
+
+# QUESTION 2
+```{r}
+# Writing a function
+function_name <- function(factor1, factor2) {
+  result <- factor1 + factor2
+  return(result)
+}
+```
+
+```{r}
+# Example
+add_numbers <- function(a, b) {
+  sum <- a + b
+  return(sum)
+}
+
+add_numbers(12, 15)
+```
+
+```{r}
+# Writing a For Loop
+for (i in 1:5) {
+ print(i)
+}
+```
+
+```{r}
+# Example
+for (i in 1:5) {
+  print(i)
+}
+```
+
+The code will be written in R Script or R Markdown. The output will be in the console. A function will grooup code to do a specific task once defined. A for loop will repeat a block of code a specific amount of times so you can perform the same function on a sequence of values.
+
+# QUESTION 3
+```{r}
+cities.data <- read.csv("Cities.csv")
+```
+
+# QUESTION 4
+```{r}
+haversine_distance <- function(lat1, lon1, lat2, lon2) {
+  rad.lat1 <- lat1 * pi/180
+  rad.lon1 <- lon1 * pi/180
+  rad.lat2 <- lat2 * pi/180
+  rad.lon2 <- lon2 * pi/180
+  delta_lat <- rad.lat2 - rad.lat1
+  delta_lon <- rad.lon2 - rad.lon1
+  a <- sin(delta_lat / 2)^2 + cos(rad.lat1) * cos(rad.lat2) * sin(delta_lon / 2)^2
+  c <- 2 * asin(sqrt(a)) 
+  earth_radius <- 6378137
+  distance_km <- (earth_radius * c)/1000
+  return(distance_km)
+}
+```
+
+# QUESTION 5
+```{r}
+library(tidyverse)
+auburn_lat <- subset(cities.data, city == "Auburn" & state_id == "AL") %>%
+  pull(lat)
+auburn_long <- subset(cities.data, city == "Auburn" & state_id == "AL") %>%
+  pull(long)
+nyc_lat <- subset(cities.data, city == "New York" & state_id == "NY") %>%
+  pull(lat)
+nyc_long <- subset(cities.data, city == "New York" & state_id == "NY") %>%
+  pull(long)
+
+haversine_distance(auburn_lat, auburn_long, nyc_lat, nyc_long)
+```
+
+# QUESTION 6
+```{r}
+head(cities.data, 10)
+
+auburn_lat <- subset(cities.data, city == "Auburn" & state_id == "AL") %>%
+  pull(lat)
+auburn_long <- subset(cities.data, city == "Auburn" & state_id == "AL") %>%
+  pull(long)
+
+for (i in 1:nrow(cities.data)) {
+    lat_city <- cities.data$lat[i]
+    lon_city <- cities.data$long[i]
+    distances <- haversine_distance(auburn_lat, auburn_long, lat_city, lon_city)
+    print(distances)
+}
+
+cities.data$Distance_from_Auburn_km <- distances
+
+head(cities.data, 10)
+
+# Bonus
+auburn_lat <- subset(cities.data, city == "Auburn" & state_id == "AL") %>%
+  pull(lat)
+auburn_long <- subset(cities.data, city == "Auburn" & state_id == "AL") %>%
+  pull(long)
+
+distance_df <- data.frame(city1 = character(0), city2 = character(0), distance_km = numeric(0))
+
+for (i in 1:nrow(cities.data)) {
+  if (cities.data$city[i] != "Auburn" | cities.data$state_id[i] != "AL") {
+    lat_city <- cities.data$lat[i]
+    lon_city <- cities.data$long[i]
+    distance <- haversine_distance(auburn_lat, auburn_long, lat_city, lon_city)
+    new_row <- data.frame(city1 = cities.data$city[i], city2 = "Auburn", distance_km = distance)
+    distance_df <- rbind(distance_df, new_row)
+  }
+}
+
+head(distance_df, 10)
+```
+
+# QUESTION 7
+[Link to GitHub](https://github.com/alexberry8/In-Class-Coding-Challenges)
+
+
+
+
+
