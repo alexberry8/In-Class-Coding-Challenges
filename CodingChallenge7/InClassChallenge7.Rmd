@@ -1,0 +1,107 @@
+---
+title: "InClassChallenge7"
+author: "Alex Berry"
+date: "2025-04-02"
+output:
+  word_document:
+    toc: true
+  pdf_document: null
+  html_document:
+    toc: true
+  md_document:
+    variant: gfm
+---
+
+# QUESTION 1
+## Load in the appropriate libraries
+```{r}
+library(tidyverse)
+library(lme4)
+library(emmeans)
+library(multcomp)
+library(multcompView)
+```
+## Read in the dataset
+```{r}
+plant.emergence <- read.csv("PlantEmergence.csv")
+```
+
+## Turn Treatment, DaysAfterPlanting and Rep into Factors
+```{r}
+plant.emergence$Treatment <- as.factor(plant.emergence$Treatment)
+plant.emergence$DaysAfterPlanting <- as.factor(plant.emergence$DaysAfterPlanting)
+plant.emergence$Rep <- as.factor(plant.emergence$Rep)
+```
+
+# QUESTION 2
+## Fit a linear model to predict Emergence using Treatment and DaysAfterPlanting along with the interaciton
+```{r}
+lm1 <- lm(Emergence ~ Treatment * DaysAfterPlanting, data = plant.emergence)
+```
+
+## Summary of the linear model and ANOVA results
+```{r}
+summary(lm1)
+anova(lm1)
+```
+
+# QUESTION 3
+## Simplified linear model without interaction but still testing both main effects
+```{r}
+lm2 <- lm(Emergence ~ Treatment + DaysAfterPlanting, data = plant.emergence)
+summary(lm2)
+anova(lm2)
+```
+### Based on the results of the ANOVA in question 2, the interaction term was not significant between Treatment and DaysAfterPlanting (p = 1), meaning there is no eveidence that suggests taht the effect of treatmetn varies by days after planting. Thus, the interaction term is not necessary in the model. However, in the simplified model (lm2), which includes Treatment and DaysAfterPlanting as main effects but removes the interaction, the ANOVA results reveal Treatment and DaysAfterPlanting are highly significant, meaning both main effects are statistically significant in predicting Emergence (p < 2.2-16, p = 1.575e-06, respectively). For Treatment 1, the predicted emergence on Day 0 is 182.163. For Treatment 2, emergence is predicted to be 134.531 units lower than for Treatment 1, signifying Treatment 2's strong negative impact on emergence. Basically, it simplifies the model because you don't need to include the interaction since it is not statistically significant.
+
+# QUESTION 4
+## Calculate the least squares mean for Treatment and perform Tukey separation then interpret the results
+```{r}
+lsmeans <- emmeans(lm2, ~ Treatment)
+results_lsmeans <- cld(lsmeans, alpha = 0.05, reversed = TRUE, details = TRUE)
+```
+### Based off the results of the least squares mean for Treatment and Tukey separation, Treatment 2 mean (55.6) is significantly lower than all others, with p < 0.0001. Treatments 5, 3, and 6 have similar means (199.0-200.9) as indicated by same group number (1). Treatments 8, 4, 9, and 1 also have similar means (190.2-197.9) as indicated by the same group number (12). Other significant differences revealed through Tukey separation include Treatment6-Treatment7 (p = 0.0425), Treatment3-Treatment7 (p = 0.0187), Treatment5-Treatment7 (p = 0.0074), along with each Treatment compared to Treatment 2 (p < 0.0001). Treatment 7 would be significantly lower than 8, 4, 9, and 1, then Treatment 2 would be less than Treatment 7.
+
+# QUESTION 5
+```{r}
+plot_cldbars_onefactor <- function(lm_model, factor) {
+  data <- lm_model$model
+variables <- colnames(lm_model$model)
+dependent_var <- variables[1]
+independent_var <- variables[2:length(variables)]
+lsmeans <- emmeans(lm_model, as.formula(paste("~", factor))) # estimate
+lsmeans
+Results_lsmeans <- cld(lsmeans, alpha = 0.05, reversed = TRUE, details =
+TRUE, Letters = letters) # contrast with Tukey adjustment by default.
+# Extracting the letters for the bars
+sig.diff.letters <- data.frame(Results_lsmeans$emmeans[,1],
+str_trim(Results_lsmeans$emmeans[,7]))
+colnames(sig.diff.letters) <- c(factor, "Letters")
+# for plotting with letters from significance test
+ave_stand2 <- lm_model$model %>%
+group_by(!!sym(factor)) %>%
+dplyr::summarize(
+ave.emerge = mean(.data[[dependent_var]], na.rm = TRUE),
+se = sd(.data[[dependent_var]]) / sqrt(n())
+) %>%
+left_join(sig.diff.letters, by = factor) %>%
+mutate(letter_position = ave.emerge + 10 * se)
+plot <- ggplot(data, aes(x = !! sym(factor), y = !! sym(dependent_var))) +
+stat_summary(fun = mean, geom = "bar") +
+stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.5) +
+ylab("Number of emerged plants") +
+geom_jitter(width = 0.02, alpha = 0.5) +
+geom_text(data = ave_stand2, aes(label = Letters, y = letter_position),
+size = 5) +
+xlab(as.character(factor)) +
+theme_classic()
+return(plot)
+}
+
+plot_cldbars_onefactor(lm2, "Treatment")
+```
+### Based off the letters in the plot, if a bar has the same letter, then it will not be significantly different than the other bars with the same letter. If a bar has a different letter than another, then the they are significantly different. Bars labeled "ab" mean the treatment is not significantly different from both groups a and b. Therefore, bars labeled just a or b will not be significantly different than bars labeled ab.
+
+# QUESTION 6
+[Link to GitHub](https://github.com/alexberry8/In-Class-Coding-Challenges)
+
